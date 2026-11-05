@@ -1,0 +1,18 @@
+{
+    "device": "FOREO UFO",
+    "category": "smart skincare device",
+    "features": [
+        "LED light therapy",
+        "Thermo-therapy",
+        "Cryo-therapy",
+        "T-sonic pulsations"
+    ],
+    "modes": {
+        "red_led": {
+            "purpose": "anti-aging skincare routine"
+        },
+        "blue_led": {
+            "purpose": "blemish focused routine"
+        }
+    }
+}

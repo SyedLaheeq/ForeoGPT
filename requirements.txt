@@ -1,0 +1,19 @@
+# Skin-GPT local runtime dependencies
+# Install with: python -m pip install -r requirements.txt
+
+# Core data and image processing
+numpy
+pandas
+opencv-python
+
+# Local RAG and embeddings
+chromadb
+sentence-transformers
+
+# Gemini API
+google-genai
+
+# API server / camera-frame transport
+fastapi
+uvicorn[standard]
+python-multipart
