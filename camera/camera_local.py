@@ -1,87 +1,78 @@
+
 import cv2
-import requests
-import numpy as np
+from pathlib import Path
+from vision.sam3_client import send_image_to_sam3
 
-SERVER_URL = "https://chowder-groove-irritable.ngrok-free.dev/frame"
+PROJECT_DIR = Path(__file__).resolve().parent.parent
 
-cap = cv2.VideoCapture(0)
+CAPTURE_PATH = PROJECT_DIR / "output" / "webcam_capture.jpg"
+OUTPUT_PATH = PROJECT_DIR / "output" / "webcam_segmented.jpg"
 
-if not cap.isOpened():
-    raise RuntimeError("Could not open local webcam.")
 
-print("Local webcam started.")
-print("Press Q to quit.")
+def main():
+    CAPTURE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-try:
-    while True:
-        ret, frame = cap.read()
+    camera = cv2.VideoCapture(0)
 
-        if not ret:
-            print("Failed to capture frame.")
-            break
+    if not camera.isOpened():
+        raise RuntimeError("Could not open webcam.")
 
-        # Local preprocessing
-        norm_frame = cv2.convertScaleAbs(
-            frame,
-            alpha=1.2,
-            beta=15
-        )
+    print("\nSkin-GPT Camera")
+    print("-----------------------------")
+    print("SPACE : Capture and analyse")
+    print("ESC   : Exit")
+    print("-----------------------------\n")
 
-        # Display the local frame immediately
-        cv2.imshow("Skin-GPT | Local Camera", norm_frame)
+    captured = False
 
-        # Send frame to Colab
-        success, encoded = cv2.imencode(
-            ".jpg",
-            norm_frame,
-            [cv2.IMWRITE_JPEG_QUALITY, 80]
-        )
+    try:
+        while True:
+            success, frame = camera.read()
 
-        if success:
-            try:
-                response = requests.post(
-                    SERVER_URL,
-                    files={
-                        "file": (
-                            "frame.jpg",
-                            encoded.tobytes(),
-                            "image/jpeg"
-                        )
-                    },
-                    timeout=2
-                )
+            if not success:
+                print("Unable to read webcam frame.")
+                break
 
-                if response.status_code == 200:
-                    processed = cv2.imdecode(
-                        np.frombuffer(
-                            response.content,
-                            dtype=np.uint8
-                        ),
-                        cv2.IMREAD_COLOR
-                    )
+            cv2.imshow("Skin-GPT | Camera Preview", frame)
 
-                    if processed is not None:
-                        cv2.imshow(
-                            "Skin-GPT | Colab T4",
-                            processed
-                        )
+            key = cv2.waitKey(1) & 0xFF
 
-                else:
-                    print(
-                        f"Server error: {response.status_code}"
-                    )
+            if key == 32:  # SPACE
+                cv2.imwrite(str(CAPTURE_PATH), frame)
+                captured = True
+                print("Image captured.")
+                break
 
-            except requests.exceptions.RequestException as e:
-                print(f"Connection error: {e}")
+            if key == 27:  # ESC
+                print("Camera cancelled.")
+                break
 
-        # IMPORTANT: check keyboard every frame
-        key = cv2.waitKey(1) & 0xFF
+    finally:
+        camera.release()
+        cv2.destroyAllWindows()
 
-        if key == ord("q"):
-            print("Q pressed. Stopping camera...")
-            break
+    if not captured:
+        return
 
-finally:
-    cap.release()
-    cv2.destroyAllWindows()
-    print("Camera stopped.")
+    print("\nUploading image to SAM3...")
+    print("Processing forehead, nose and chin...")
+
+    result_path = send_image_to_sam3(
+        CAPTURE_PATH,
+        OUTPUT_PATH
+    )
+
+    print("\nSegmentation successful!")
+    print(f"Saved result: {result_path}")
+
+    result = cv2.imread(str(result_path))
+
+    if result is not None:
+        cv2.imshow("Skin-GPT | Segmentation Result", result)
+        print("Press any key to close.")
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    main()

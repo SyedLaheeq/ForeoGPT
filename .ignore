@@ -1,0 +1,83 @@
+
+# ==========================================
+# Skin-GPT - Git Ignore
+# ==========================================
+
+# Python virtual environments
+venv/
+venv314/
+.venv/
+env/
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Generated outputs and captured images
+output/*
+!output/.gitkeep
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+secrets/
+*secret*
+*credentials*
+*.pem
+*.key
+
+# Model weights and large ML artifacts
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.engine
+*.h5
+*.pkl
+*.joblib
+
+# Experiment tracking
+wandb/
+mlruns/
+runs/
+
+# Generated datasets and archives
+*.zip
+*.tar
+*.tar.gz
+
+# IDE and editor files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+
+# Node.js (if frontend is added later)
+node_modules/

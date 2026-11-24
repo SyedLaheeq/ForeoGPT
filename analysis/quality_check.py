@@ -1,24 +1,26 @@
 def calculate_zone_quality(features):
 
-    brightness = features["brightness"]
+    brightness = features.get("brightness")
 
+    if brightness is None:
+        lighting = "unavailable"
+        feature_available = False
 
-    if brightness < 40:
+    elif brightness < 40:
         lighting = "too_dark"
+        feature_available = True
 
     elif brightness > 230:
         lighting = "overexposed"
+        feature_available = True
 
     else:
         lighting = "acceptable"
-
+        feature_available = True
 
     return {
-
         "lighting": lighting,
-
-        "feature_available": True
-
+        "feature_available": feature_available
     }
 
 
